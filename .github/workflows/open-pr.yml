@@ -1,0 +1,11 @@
+name: Open PR
+on:
+  push:
+    branches: [test]
+
+jobs:
+  check:
+    if: contains(fromJson('["feat", "bug", "refactor"]'), github.event.head_commit.message)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Open PR"
