@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+#              ,---------------------------,
+#              |  /---------------------\  |
+#              | |                       | |
+#              | |      Jack Nemitz      | |
+#              | |        hossht         | |
+#              | |      /h/oʊ/ʃ/t/       | |
+#              | |                       | |
+#              |  \_____________________/  |
+#              |___________________________|
+#            ,---\_____     []     _______/------,
+#          /         /______________\           /|
+#        /___________________________________ /  | ~~~
+#        |                                   |   |    )
+#        |  _ _ _                 [-------]  |   |   (
+#        |  o o o                 [-------]  |  /     )
+#        |__________________________________ |/     _(_
+#    /-------------------------------------/|      /  /
+#  /-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /      ( )/
+#/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+#######################################
+# Functions
+#######################################
+
+help() {
+echo "hossht - Manage ssh keys and host aliases.
+
+usage:
+  hossht user@host
+  hossht [-k key-file] [-p port] [-a host-alias] user@host
+
+options:
+  -k key-file    path to the ssh-keyfile to copy to the host (defaults to ~/.ssh/id_rsa)
+  -p port        port number to use for ssh (defaults to 22)
+  -a alias       alias for the host conifguration (defaults to the full hostname)"
+}
+
+#######################################
+# Logic
+#######################################
+
+if [[ $# -eq 0 ]]; then
+  help
+  exit
+fi
+
+while [[ $OPTIND -le "$#" ]]; do
+  if getopts ":hk::p::a::" option; then
+    case $option in
+    h)
+      help
+      exit;;
+    k)
+      IFS='/' read -ra key <<< "$OPTARG"
+      key=$(IFS='/'; echo "${key[*]}")
+      # [[ "${key[${#key[@]}-1]}" == *".pub" ]] && echo "PUBLIC" || echo "PRIVATE";;
+      ;;
+    p)
+      port=$OPTARG;;
+    a)
+      alias=$OPTARG;;
+    \?)
+      echo "ERROR: Invalid option: -$OPTARG"
+      exit 1;;
+    esac
+  else
+    [[ -z $positional ]] && positional=("${!OPTIND}") || positional+=("${!OPTIND}")
+    [[ ${!OPTIND} == *"@"* ]] && IFS='@' read -ra host <<< "${!OPTIND}"
+    ((OPTIND++))
+  fi
+done
+
+ssh-copy-id -i "$key" -p "$port" "${positional[@]}" &> /dev/null || exit
+
+entry="
+Host ${alias}
+  HostName ${host[1]}
+  User ${host[0]}
+  IdentityFile ${key}"
+
+file=$(cat "$HOME/.ssh/config")
+
+[[ $file == *"$entry"* ]] && echo -e "${entry}\n\nEntry already exists in ${Home}/.ssh/config" || echo "${entry}" >> "$HOME/.ssh/config"
