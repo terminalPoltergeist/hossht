@@ -8,7 +8,7 @@ on:
 
 jobs:
   Get_Version:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
