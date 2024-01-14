@@ -15,5 +15,5 @@ jobs:
       - name: 'Get Previous tag'
         id: previoustag
         run: |
-          [[ tag=$(git descrite --tags --abbrev=0) || tag=$(git describe --abbrev=0) ]]
+          [[ tag=$(git describe --tags --abbrev=0) || tag=$(git describe --abbrev=0) ]]
           echo $tag
