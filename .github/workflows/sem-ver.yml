@@ -1,13 +1,11 @@
 name: Release
 on:
   pull_request_target:
-    branches:
-      - 'main'
-    types:
-      - closed
+    branches: [main]
+    types: [closed]
 
 jobs:
-  Get_Version:
+  sem_ver:
     if: github.event.pull_request.merged
     - uses: actions/checkout@v3
       with:
