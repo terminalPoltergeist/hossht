@@ -7,11 +7,13 @@ on:
 jobs:
   semver:
     if: github.event.pull_request.merged
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: 'Get Previous tag'
-      id: previoustag
-      run: |
-        [[ tag=$(git descrite --tags --abbrev=0) || tag=$(git describe --abbrev=0) ]]
-        echo $tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: 'Get Previous tag'
+        id: previoustag
+        run: |
+          [[ tag=$(git descrite --tags --abbrev=0) || tag=$(git describe --abbrev=0) ]]
+          echo $tag
